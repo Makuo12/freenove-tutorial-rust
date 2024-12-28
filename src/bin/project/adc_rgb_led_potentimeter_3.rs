@@ -15,7 +15,7 @@ fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
     let mut board = Board::new(peripherals);
     
-    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.led15.take().unwrap());
+    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin15.take().unwrap());
     pin15_channel0
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -24,7 +24,7 @@ fn main() -> ! {
         })
         .unwrap();
     
-    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.led2.take().unwrap());
+    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.pin2.take().unwrap());
     pin2_channel1
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -33,7 +33,7 @@ fn main() -> ! {
         })
         .unwrap();
     
-    let mut pin4_channel2 = board.ledc.channel(channel::Number::Channel2, board.led4.take().unwrap());
+    let mut pin4_channel2 = board.ledc.channel(channel::Number::Channel2, board.pin4.take().unwrap());
     pin4_channel2
         .configure(channel::config::Config {
             timer: &board.lstimer0,

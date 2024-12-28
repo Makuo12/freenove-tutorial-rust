@@ -3,24 +3,28 @@
 
 
 use esp_hal::{
-    analog::adc::{self, Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, Pin}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
+    analog::adc::{self, Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, OutputPin, Pin}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
 };
 use core::option::Option::{self, Some};
 
+// For better understanding
+// led fields represent pins that have been set for output;
+// button fields represent pins that have been set for input
 
 pub struct Board {
+
     pub ledc: Ledc<'static>,
     pub lstimer0: Timer<'static, LowSpeed>,
-    pub led15: Option<Output<'static>>,
-    pub led2: Option<Output<'static>>,
-    pub led0: Option<Output<'static>>,
-    pub led4: Option<Output<'static>>,
-    pub led32: Option<Output<'static>>,
-    pub led33: Option<Output<'static>>,
-    pub led27: Option<Output<'static>>,
-    pub touchpad14: Option<TouchPad<GpioPin<14>, Continuous, Blocking>>,
-    pub button12: Option<Input<'static>>,
-    pub button13: Option<Input<'static>>,
+    pub pin15: Option<Output<'static>>,
+    pub pin2: Option<Output<'static>>,
+    pub pin0: Option<Output<'static>>,
+    pub pin4: Option<Output<'static>>,
+    pub pin32: Option<Output<'static>>,
+    pub pin33: Option<Output<'static>>,
+    pub pin27: Option<Output<'static>>,
+    pub touch_pin14: Option<TouchPad<GpioPin<14>, Continuous, Blocking>>,
+    pub in_pin12: Option<Input<'static>>,
+    pub in_pin13: Option<Input<'static>>,
     pub tx1: Option<UartTx<'static, Blocking>>,
     pub rx3: Option<UartRx<'static, Blocking>>,
     pub adc1: Option<Adc<'static, ADC1>>,
@@ -35,26 +39,26 @@ impl Board {
         let mut ledc = Ledc::new(peripherals.LEDC);
         ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
         
-        let led15 = Some(Output::new(peripherals.GPIO15.degrade(), Level::Low));
-        let led2 = Some(Output::new(peripherals.GPIO2.degrade(), Level::Low));
-        let led0 = Some(Output::new(peripherals.GPIO0.degrade(), Level::Low));
-        let led4 = Some(Output::new(peripherals.GPIO4.degrade(), Level::Low));
-        let led32 = Some(Output::new(peripherals.GPIO32.degrade(), Level::Low));
-        let led33 = Some(Output::new(peripherals.GPIO33.degrade(), Level::Low));
-        let led27 = Some(Output::new(peripherals.GPIO27.degrade(), Level::Low));
+        let pin15 = Some(Output::new(peripherals.GPIO15.degrade(), Level::Low));
+        let pin2 = Some(Output::new(peripherals.GPIO2.degrade(), Level::Low));
+        let pin0 = Some(Output::new(peripherals.GPIO0.degrade(), Level::Low));
+        let pin4 = Some(Output::new(peripherals.GPIO4.degrade(), Level::Low));
+        let pin32 = Some(Output::new(peripherals.GPIO32.degrade(), Level::Low));
+        let pin33 = Some(Output::new(peripherals.GPIO33.degrade(), Level::Low));
+        let pin27 = Some(Output::new(peripherals.GPIO27.degrade(), Level::Low));
 
-        let button12 = Some(Input::new(peripherals.GPIO12.degrade(), esp_hal::gpio::Pull::Up));
-        let button13 = Some(Input::new(peripherals.GPIO13.degrade(), esp_hal::gpio::Pull::Up));
+        let in_pin12 = Some(Input::new(peripherals.GPIO12.degrade(), esp_hal::gpio::Pull::Up));
+        let in_pin13 = Some(Input::new(peripherals.GPIO13.degrade(), esp_hal::gpio::Pull::Up));
         // Set LED GPIOs as an output:
         // Setting up timer for ledc for pwm
         let mut lstimer0 = ledc.timer::<LowSpeed>(timer::Number::Timer0);
         lstimer0
-            .configure(timer::config::Config {
-                duty: timer::config::Duty::Duty5Bit,
-                clock_source: timer::LSClockSource::APBClk,
-                frequency: 24.kHz(),
-            })
-            .unwrap();
+        .configure(timer::config::Config {
+            duty: timer::config::Duty::Duty5Bit,
+            clock_source: timer::LSClockSource::APBClk,
+            frequency: 50_u32.Hz(),
+        })
+        .unwrap();
         let tx1 = Some(UartTx::new(peripherals.UART0, peripherals.GPIO1.degrade()).unwrap());
         let rx3 = Some(UartRx::new(peripherals.UART1, peripherals.GPIO3.degrade()).unwrap());
         // Setting up adc for analog digital converter
@@ -66,10 +70,10 @@ impl Board {
         
         // Setting up touch
         let touch = Touch::continuous_mode(peripherals.TOUCH, None);
-        let touchpad14 = Some(TouchPad::new(peripherals.GPIO14, &touch));
+        let touch_pin14 = Some(TouchPad::new(peripherals.GPIO14, &touch));
         
 
-        Board {ledc, lstimer0, led15, led2, led0, led4, led32, led33, led27, touchpad14, button12, button13, tx1, rx3, adc1, adc1_pin36, adc1_pin39, adc1_pin34}
+        Board {ledc, lstimer0, pin15, pin2, pin0, pin4, pin32, pin33, pin27, touch_pin14, in_pin12, in_pin13, tx1, rx3, adc1, adc1_pin36, adc1_pin39, adc1_pin34}
         
     }
 }
@@ -77,7 +81,7 @@ impl Board {
 
 
 fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
-    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.led15.take().unwrap());
+    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin15.take().unwrap());
     pin15_channel0
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -86,7 +90,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.led2.take().unwrap());
+    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.pin2.take().unwrap());
     pin2_channel1
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -95,7 +99,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin0_channel2 = board.ledc.channel(channel::Number::Channel2, board.led0.take().unwrap());
+    let mut pin0_channel2 = board.ledc.channel(channel::Number::Channel2, board.pin0.take().unwrap());
     pin0_channel2
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -104,7 +108,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin4_channel3 = board.ledc.channel(channel::Number::Channel3, board.led4.take().unwrap());
+    let mut pin4_channel3 = board.ledc.channel(channel::Number::Channel3, board.pin4.take().unwrap());
     pin4_channel3
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -113,7 +117,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin32_channel4 = board.ledc.channel(channel::Number::Channel4, board.led32.take().unwrap());
+    let mut pin32_channel4 = board.ledc.channel(channel::Number::Channel4, board.pin32.take().unwrap());
     pin32_channel4
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -122,7 +126,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.led33.take().unwrap());
+    let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.pin33.take().unwrap());
     pin33_channel5
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -131,7 +135,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.led27.take().unwrap());
+    let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.pin27.take().unwrap());
     pin27_channel6
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -140,7 +144,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    // let mut pin14_channel7 = board.ledc.channel(channel::Number::Channel7, board.led14.take().unwrap());
+    // let mut pin14_channel7 = board.ledc.channel(channel::Number::Channel7, board.pin14.take().unwrap());
     // pin14_channel7
     //     .configure(channel::config::Config {
     //         timer: &board.lstimer0,
@@ -161,3 +165,50 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
     ];
     return channels;
 }
+
+
+pub struct Servo<'a, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> {
+    channel: Channel<'a, LowSpeed>
+}
+
+impl<'a, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> Servo <'a, MIN_DUTY, MAX_DUTY, BITS, FREQUENCY> {
+    const CYCLE_TIME: u32 = 1000000 / FREQUENCY;
+    const DUTY_SPACE: u32 = 2_u32.pow(BITS);
+    pub fn new(channel: Channel<'a, LowSpeed>)->Self {
+        Servo { channel }
+    }
+
+    pub fn set_percentage(&mut self, percentage: u8) {
+        let range: u32 = MAX_DUTY - MIN_DUTY;
+        let abs_duty = MIN_DUTY + (range * percentage as u32 / 100); // in micros
+        let duty = abs_duty * Self::DUTY_SPACE / Self::CYCLE_TIME;
+        self.channel.set_duty_hw(duty);
+    }
+}
+
+
+
+// pub struct Servo<'a, P: OutputPin, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> {
+//     channel: Channel<'a,LowSpeed,P>,
+// }
+
+// impl <'a, P: OutputPin,const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> 
+//     Servo<'a, P, MIN_DUTY, MAX_DUTY, BITS,FREQUENCY> {
+//     // const POW: u32 = 2_u32.pow(BITS);
+//     const CYCLE_TIME: u32 = 1000000 / FREQUENCY;
+//     const DUTY_SPACE: u32 = 2_u32.pow(BITS);
+//     pub fn new(channel: Channel<'a,LowSpeed,P>)->Self {
+//         Servo { channel }
+//     }
+
+//     pub fn set_percentage(&mut self, percentage: u8) {
+//         let range: u32 = MAX_DUTY - MIN_DUTY;
+//         info!("Range: {}",range);
+//         let abs_duty = MIN_DUTY + (range * percentage as u32 / 100); // in micros
+//         info!("Setting to aba duty: {}",abs_duty);
+        
+//         let duty = abs_duty * Self::DUTY_SPACE / Self::CYCLE_TIME;
+//         info!("Setting to duty: {}",duty);
+//         self.channel.set_duty_hw(duty);
+//     }
+// }

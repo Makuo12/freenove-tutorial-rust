@@ -78,7 +78,7 @@ fn main() -> ! {
 }
 
 fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
-    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.led15.take().unwrap());
+    let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin15.take().unwrap());
     pin15_channel0
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -87,7 +87,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.led2.take().unwrap());
+    let mut pin2_channel1 = board.ledc.channel(channel::Number::Channel1, board.pin2.take().unwrap());
     pin2_channel1
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -96,7 +96,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin0_channel2 = board.ledc.channel(channel::Number::Channel2, board.led0.take().unwrap());
+    let mut pin0_channel2 = board.ledc.channel(channel::Number::Channel2, board.pin0.take().unwrap());
     pin0_channel2
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -105,7 +105,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin4_channel3 = board.ledc.channel(channel::Number::Channel3, board.led4.take().unwrap());
+    let mut pin4_channel3 = board.ledc.channel(channel::Number::Channel3, board.pin4.take().unwrap());
     pin4_channel3
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -114,7 +114,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin32_channel4 = board.ledc.channel(channel::Number::Channel4, board.led32.take().unwrap());
+    let mut pin32_channel4 = board.ledc.channel(channel::Number::Channel4, board.pin32.take().unwrap());
     pin32_channel4
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -123,7 +123,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.led33.take().unwrap());
+    let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.pin33.take().unwrap());
     pin33_channel5
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -132,7 +132,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.led27.take().unwrap());
+    let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.pin27.take().unwrap());
     pin27_channel6
         .configure(channel::config::Config {
             timer: &board.lstimer0,
@@ -141,7 +141,7 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 8] {
         })
         .unwrap();
     
-    let mut pin14_channel7 = board.ledc.channel(channel::Number::Channel7, board.led14.take().unwrap());
+    let mut pin14_channel7 = board.ledc.channel(channel::Number::Channel7, board.pin14.take().unwrap());
     pin14_channel7
         .configure(channel::config::Config {
             timer: &board.lstimer0,

@@ -16,7 +16,7 @@ use s_learn::Board;
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
     let mut board = Board::new(peripherals);
-    let mut pin4_channel0 = board.ledc.channel(channel::Number::Channel0, board.led4.take().unwrap());
+    let mut pin4_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin4.take().unwrap());
     pin4_channel0
         .configure(channel::config::Config {
             timer: &board.lstimer0,

@@ -3,10 +3,10 @@
 #![no_main]
 
 
+
 use esp_backtrace as _;
 use esp_hal::{
-    delay::Delay, ledc::channel::{self, Number}, 
-    prelude::*
+    delay::Delay, ledc::channel, prelude::*
 };
 use s_learn::Board;
 
@@ -15,8 +15,7 @@ use s_learn::Board;
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
     let mut board = Board::new(peripherals);
-    let delay = Delay::new();
-
+    
     let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin15.take().unwrap());
     pin15_channel0
         .configure(channel::config::Config {
@@ -43,11 +42,33 @@ fn main() -> ! {
             pin_config: channel::config::PinConfig::PushPull,
         })
         .unwrap();
-    
-    // let mut channels = get_channels(&mut board);
+    let mut value_34 = 0;
+    let mut value_36 = 0;
+    let mut value_39 = 0;
     loop {
-        pin15_channel0.set_duty(0);
-        pin2_channel1.set_duty(255);
-        pin4_channel2.set_duty(0);
+        if let Some(adc1) = &mut board.adc1 {
+            
+            let adc1_pin36 = match &mut board.adc1_pin36 {
+                Some(r) => r,
+                None => {
+                    esp_println::println!("failed 3");
+                    continue;
+                }
+            };
+            match adc1.read_oneshot(adc1_pin36) {
+                Ok(r) => {
+                    value_36 = r;
+                },
+                Err(_) => {
+                }
+            };
+            pin4_channel2.set_duty(remap(value_36) as u8);
+        }
     }
+}
+
+
+
+fn remap(value: u16) -> f32 {
+    return (value as f32 / 4095.0) * 255.0;
 }
