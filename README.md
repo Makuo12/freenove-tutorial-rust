@@ -34,4 +34,4 @@ Happy coding!
 
 ## Learn Folder
 
-All tutorials are located in the `learn` folder. Navigate to this folder to find the individual tutorial directories and start learning!
+All tutorials are located in the `src/bin/project` folder. Navigate to this folder to find the individual tutorial directories and start learning!
