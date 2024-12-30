@@ -548,6 +548,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "lcd1602-diver"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84368a1c1f4d2a0f085d112dd9903ab045af3d2adb5b41584d52bdc3dbdd58fe"
+dependencies = [
+ "bitflags",
+ "embedded-hal 0.2.7",
+]
+
+[[package]]
+name = "lcd_1602_i2c"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d95f3d4e60311d71b8f4e4f70dc98b119ca6f48a14c523ab8c322c6a59286288"
+dependencies = [
+ "embedded-hal 0.2.7",
+]
+
+[[package]]
 name = "litrs"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -763,6 +782,8 @@ dependencies = [
  "esp-backtrace",
  "esp-hal",
  "esp-println",
+ "lcd1602-diver",
+ "lcd_1602_i2c",
  "log",
  "micromath",
 ]

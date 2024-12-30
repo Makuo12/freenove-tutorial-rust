@@ -18,22 +18,28 @@ fn main() -> ! {
     let board = Board::new(peripherals);
     let mut delay = Delay::new();
     let mut lcd = LCD1602::new_i2c(board.blocking_i2c.unwrap(), LCD_ADDRESS, &mut delay).unwrap();
-    lcd.write_byte(b'1', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
+    lcd.write_byte(b'F', &mut delay).unwrap();
+    lcd.write_byte(b'o', &mut delay).unwrap();
+    lcd.write_byte(b'r', &mut delay).unwrap();
+    lcd.write_byte(b'm', &mut delay).unwrap();
+    lcd.write_byte(b' ', &mut delay).unwrap();
+    lcd.write_byte(b'M', &mut delay).unwrap();
+    lcd.write_byte(b'a', &mut delay).unwrap();
+    lcd.write_byte(b'k', &mut delay).unwrap();
+    lcd.write_byte(b'u', &mut delay).unwrap();
+    lcd.write_byte(b'o', &mut delay).unwrap();
     lcd.set_cursor_pos(40, &mut delay);
-
-    lcd.write_byte(b'0', &mut delay).unwrap();
-    lcd.write_byte(b'0', &mut delay).unwrap();
+    lcd.write_byte(b'H', &mut delay).unwrap();
+    lcd.write_byte(b'e', &mut delay).unwrap();
+    lcd.write_byte(b'l', &mut delay).unwrap();
+    lcd.write_byte(b'l', &mut delay).unwrap();
+    lcd.write_byte(b'o', &mut delay).unwrap();
+    lcd.write_byte(b' ', &mut delay).unwrap();
+    lcd.write_byte(b'W', &mut delay).unwrap();
+    lcd.write_byte(b'o', &mut delay).unwrap();
+    lcd.write_byte(b'r', &mut delay).unwrap();
+    lcd.write_byte(b'l', &mut delay).unwrap();
+    lcd.write_byte(b'd', &mut delay).unwrap();
     // for address in 0x03..0x7F  {
     //     if let Some(i2c) = &mut board.blocking_i2c {
     //         let result = i2c.write(address, &[]); // Try to write with an empty buffer

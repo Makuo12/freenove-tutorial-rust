@@ -3,8 +3,9 @@
 
 
 use esp_hal::{
-    analog::adc::{self, Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, OutputPin, Pin}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
+    analog::adc::{self, Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, OutputPin, Pin}, i2c::master::{Config, I2c}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
 };
+use lcd_1602_i2c::Lcd;
 use core::option::Option::{self, Some};
 
 // For better understanding
@@ -12,7 +13,6 @@ use core::option::Option::{self, Some};
 // button fields represent pins that have been set for input
 
 pub struct Board {
-
     pub ledc: Ledc<'static>,
     pub lstimer0: Timer<'static, LowSpeed>,
     pub pin15: Option<Output<'static>>,
@@ -31,8 +31,9 @@ pub struct Board {
     pub adc1_pin36: Option<AdcPin<GpioPin<36>, ADC1>>,
     pub adc1_pin39: Option<AdcPin<GpioPin<39>, ADC1>>,
     pub adc1_pin34: Option<AdcPin<GpioPin<34>, ADC1>>,
+    pub blocking_i2c: Option<I2c<'static, Blocking>>
 }
-
+// Device I2c addresses
 
 impl Board {
     pub fn new(peripherals: Peripherals) -> Self {
@@ -54,11 +55,19 @@ impl Board {
         let mut lstimer0 = ledc.timer::<LowSpeed>(timer::Number::Timer0);
         lstimer0
         .configure(timer::config::Config {
-            duty: timer::config::Duty::Duty5Bit,
+            duty: timer::config::Duty::Duty14Bit,
             clock_source: timer::LSClockSource::APBClk,
             frequency: 50_u32.Hz(),
         })
         .unwrap();
+        // I2C
+        let blocking_i2c = Some(I2c::new(
+            peripherals.I2C0, Config::default())
+            .with_scl(peripherals.GPIO22)
+            .with_sda(peripherals.GPIO21));
+
+        
+
         let tx1 = Some(UartTx::new(peripherals.UART0, peripherals.GPIO1.degrade()).unwrap());
         let rx3 = Some(UartRx::new(peripherals.UART1, peripherals.GPIO3.degrade()).unwrap());
         // Setting up adc for analog digital converter
@@ -73,7 +82,7 @@ impl Board {
         let touch_pin14 = Some(TouchPad::new(peripherals.GPIO14, &touch));
         
 
-        Board {ledc, lstimer0, pin15, pin2, pin0, pin4, pin32, pin33, pin27, touch_pin14, in_pin12, in_pin13, tx1, rx3, adc1, adc1_pin36, adc1_pin39, adc1_pin34}
+        Board {ledc, lstimer0, pin15, pin2, pin0, pin4, pin32, pin33, pin27, touch_pin14, in_pin12, in_pin13, tx1, rx3, adc1, adc1_pin36, adc1_pin39, adc1_pin34, blocking_i2c}
         
     }
 }
@@ -172,7 +181,7 @@ pub struct Servo<'a, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, 
 }
 
 impl<'a, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> Servo <'a, MIN_DUTY, MAX_DUTY, BITS, FREQUENCY> {
-    const CYCLE_TIME: u32 = 1000000 / FREQUENCY;
+    const CYCLE_TIME: u32 = 1_000_000 / FREQUENCY;
     const DUTY_SPACE: u32 = 2_u32.pow(BITS);
     pub fn new(channel: Channel<'a, LowSpeed>)->Self {
         Servo { channel }
@@ -182,33 +191,9 @@ impl<'a, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUE
         let range: u32 = MAX_DUTY - MIN_DUTY;
         let abs_duty = MIN_DUTY + (range * percentage as u32 / 100); // in micros
         let duty = abs_duty * Self::DUTY_SPACE / Self::CYCLE_TIME;
+        // esp_println::println!("duty {}", duty);
         self.channel.set_duty_hw(duty);
     }
 }
 
 
-
-// pub struct Servo<'a, P: OutputPin, const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> {
-//     channel: Channel<'a,LowSpeed,P>,
-// }
-
-// impl <'a, P: OutputPin,const MIN_DUTY: u32, const MAX_DUTY: u32, const BITS: u32, const FREQUENCY: u32> 
-//     Servo<'a, P, MIN_DUTY, MAX_DUTY, BITS,FREQUENCY> {
-//     // const POW: u32 = 2_u32.pow(BITS);
-//     const CYCLE_TIME: u32 = 1000000 / FREQUENCY;
-//     const DUTY_SPACE: u32 = 2_u32.pow(BITS);
-//     pub fn new(channel: Channel<'a,LowSpeed,P>)->Self {
-//         Servo { channel }
-//     }
-
-//     pub fn set_percentage(&mut self, percentage: u8) {
-//         let range: u32 = MAX_DUTY - MIN_DUTY;
-//         info!("Range: {}",range);
-//         let abs_duty = MIN_DUTY + (range * percentage as u32 / 100); // in micros
-//         info!("Setting to aba duty: {}",abs_duty);
-        
-//         let duty = abs_duty * Self::DUTY_SPACE / Self::CYCLE_TIME;
-//         info!("Setting to duty: {}",duty);
-//         self.channel.set_duty_hw(duty);
-//     }
-// }
