@@ -3,7 +3,7 @@
 
 
 use esp_hal::{
-    analog::adc::{self, Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, OutputPin, Pin}, i2c::master::{Config, I2c}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
+    analog::adc::{Adc, AdcConfig, AdcPin, Attenuation}, gpio::{GpioPin, Input, Level, Output, Pin}, i2c::master::{Config, I2c}, ledc::{channel::{self, Channel}, timer::{self, Timer}, LSGlobalClkSource, Ledc, LowSpeed}, peripherals::{Peripherals, ADC1}, prelude::*, touch::{Continuous, Touch, TouchPad}, uart::{UartRx, UartTx}, Blocking
 };
 use core::option::Option::{self, Some};
 
