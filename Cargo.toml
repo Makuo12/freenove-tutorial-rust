@@ -19,6 +19,8 @@ log = { version = "0.4.21" }
 critical-section = "1.2.0"
 lcd_1602_i2c = "0.3.0"
 lcd1602-diver = "0.1.1"
+chrono = { version = "0.4", default-features = false}
+keypad = "0.2.2"
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization

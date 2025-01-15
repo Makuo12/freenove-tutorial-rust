@@ -1,11 +1,6 @@
-#![no_std]
-
-pub mod board;
-
-
 use esp_hal::{
     analog::adc::{Adc, AdcConfig, AdcPin, Attenuation}, 
-    gpio::{GpioPin, Input, Level, Output, Pin}, 
+    gpio::{GpioPin, Input, Level, Output, Pin, Pull}, 
     i2c::master::{Config, I2c}, 
     ledc::{channel::{self, Channel}, timer::{self, Timer as LCD_Timer}, LSGlobalClkSource, Ledc, LowSpeed}, 
     peripherals::{Peripherals, ADC1, LPWR}, 
@@ -21,13 +16,13 @@ use core::option::Option::{self, Some};
 pub struct Board {
     pub ledc: Ledc<'static>,
     pub lstimer0: LCD_Timer<'static, LowSpeed>,
-    pub pin15: Option<Output<'static>>,
+    pub pin15: Option<Input<'static>>,
     pub pin2: Option<Output<'static>>,
     pub pin0: Option<Output<'static>>,
     pub pin4: Option<Output<'static>>,
     pub pin32: Option<Output<'static>>,
-    pub pin33: Option<Output<'static>>,
-    pub pin27: Option<Output<'static>>,
+    pub in_pin33: Option<Input<'static>>,
+    pub in_pin27: Option<Input<'static>>,
     pub touch_pin14: Option<TouchPad<GpioPin<14>, Continuous, Blocking>>,
     pub in_pin12: Option<Input<'static>>,
     pub in_pin13: Option<Input<'static>>,
@@ -47,13 +42,13 @@ impl Board {
         let mut ledc = Ledc::new(peripherals.LEDC);
         ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
         
-        let pin15 = Some(Output::new(peripherals.GPIO15.degrade(), Level::Low));
+        let pin15 = Some(Input::new(peripherals.GPIO15.degrade(), Pull::Up));
         let pin2 = Some(Output::new(peripherals.GPIO2.degrade(), Level::Low));
         let pin0 = Some(Output::new(peripherals.GPIO0.degrade(), Level::Low));
         let pin4 = Some(Output::new(peripherals.GPIO4.degrade(), Level::Low));
         let pin32 = Some(Output::new(peripherals.GPIO32.degrade(), Level::Low));
-        let pin33 = Some(Output::new(peripherals.GPIO33.degrade(), Level::Low));
-        let pin27 = Some(Output::new(peripherals.GPIO27.degrade(), Level::Low));
+        let in_pin33 = Some(Input::new(peripherals.GPIO33.degrade(), Pull::Up));
+        let in_pin27 = Some(Input::new(peripherals.GPIO27.degrade(), Pull::Up));
 
         let in_pin12 = Some(Input::new(peripherals.GPIO12.degrade(), esp_hal::gpio::Pull::Up));
         let in_pin13 = Some(Input::new(peripherals.GPIO13.degrade(), esp_hal::gpio::Pull::Up));
@@ -90,7 +85,7 @@ impl Board {
 
         Board {
             ledc, lstimer0, pin15, pin2, pin0, 
-            pin4, pin32, pin33, pin27, touch_pin14, 
+            pin4, pin32, in_pin33, in_pin27, touch_pin14, 
             in_pin12, in_pin13, tx1, rx3, adc1, 
             adc1_pin36, adc1_pin39, adc1_pin34, 
             blocking_i2c, lpwr: peripherals.LPWR}
@@ -100,7 +95,7 @@ impl Board {
 
 
 
-fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
+fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 5] {
     let mut pin15_channel0 = board.ledc.channel(channel::Number::Channel0, board.pin15.take().unwrap());
     pin15_channel0
         .configure(channel::config::Config {
@@ -146,23 +141,23 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
         })
         .unwrap();
     
-    let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.pin33.take().unwrap());
-    pin33_channel5
-        .configure(channel::config::Config {
-            timer: &board.lstimer0,
-            duty_pct: 10,
-            pin_config: channel::config::PinConfig::PushPull,
-        })
-        .unwrap();
+    // let mut pin33_channel5 = board.ledc.channel(channel::Number::Channel5, board.pin33.take().unwrap());
+    // pin33_channel5
+    //     .configure(channel::config::Config {
+    //         timer: &board.lstimer0,
+    //         duty_pct: 10,
+    //         pin_config: channel::config::PinConfig::PushPull,
+    //     })
+    //     .unwrap();
     
-    let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.pin27.take().unwrap());
-    pin27_channel6
-        .configure(channel::config::Config {
-            timer: &board.lstimer0,
-            duty_pct: 10,
-            pin_config: channel::config::PinConfig::PushPull,
-        })
-        .unwrap();
+    // let mut pin27_channel6 = board.ledc.channel(channel::Number::Channel6, board.pin27.take().unwrap());
+    // pin27_channel6
+    //     .configure(channel::config::Config {
+    //         timer: &board.lstimer0,
+    //         duty_pct: 10,
+    //         pin_config: channel::config::PinConfig::PushPull,
+    //     })
+    //     .unwrap();
     
     // let mut pin14_channel7 = board.ledc.channel(channel::Number::Channel7, board.pin14.take().unwrap());
     // pin14_channel7
@@ -173,14 +168,14 @@ fn get_channels<'a>(board: &'a mut Board) -> [Channel<'a, LowSpeed>; 7] {
     //     })
     //     .unwrap();
     
-    let channels:[Channel<'a, LowSpeed>; 7] = [
+    let channels:[Channel<'a, LowSpeed>; 5] = [
         pin15_channel0,
         pin2_channel1,
         pin0_channel2,
         pin4_channel3,
         pin32_channel4,
-        pin33_channel5,
-        pin27_channel6,
+        // pin33_channel5,
+        // pin27_channel6,
         // pin14_channel7
     ];
     return channels;

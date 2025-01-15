@@ -548,6 +548,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "keypad"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cd098757f3c79a71672ea320a457ba57ab42f25f628145473329fa59c320d37"
+dependencies = [
+ "embedded-hal 0.2.7",
+]
+
+[[package]]
 name = "lcd1602-diver"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -778,10 +787,12 @@ checksum = "f7c45b9784283f1b2e7fb61b42047c2fd678ef0960d4f6f1eba131594cc369d4"
 name = "s_learn"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "critical-section",
  "esp-backtrace",
  "esp-hal",
  "esp-println",
+ "keypad",
  "lcd1602-diver",
  "lcd_1602_i2c",
  "log",
