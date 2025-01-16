@@ -548,10 +548,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "keypad"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cd098757f3c79a71672ea320a457ba57ab42f25f628145473329fa59c320d37"
+name = "keypad2"
+version = "0.1.0"
+source = "git+https://github.com/Makuo12/keypad2#016dacada73f55f5e318efb05e7af0052604e5f7"
 dependencies = [
  "embedded-hal 0.2.7",
 ]
@@ -789,10 +788,11 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "critical-section",
+ "embedded-hal 0.2.7",
  "esp-backtrace",
  "esp-hal",
  "esp-println",
- "keypad",
+ "keypad2",
  "lcd1602-diver",
  "lcd_1602_i2c",
  "log",

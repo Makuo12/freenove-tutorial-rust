@@ -1,6 +1,7 @@
 #![no_std]
 
 pub mod board;
+pub mod keyboard;
 
 
 use esp_hal::{
